@@ -44,22 +44,22 @@ def run_unit_tests():
         configs.get("Unit Tests", "unit test dir path", fallback="tests")
     )
 
-    if os.path.isdir(unit_test_dir_path):
+    if not os.path.isdir(unit_test_dir_path):
+        raise NotADirectoryError(
+            "Could not find a directory that contained unit tests at %s."
+            % os.path.abspath(unit_test_dir_path)
+        )
+
+    else:
         test_loader = unittest.TestLoader()
-        x = test_loader.discover(
+        tests = test_loader.discover(
             start_dir=unit_test_dir_path,
             pattern=configs.get("Unit Tests", "unit test file name pattern"),
             top_level_dir=os.path.join(get_project_root_dir_path())
         )
 
         test_runner = unittest.TextTestRunner()
-        test_runner.run(x)
-
-    else:
-        raise NotADirectoryError(
-            "Could not find a directory that contained unit tests at %s."
-            % os.path.abspath(unit_test_dir_path)
-        )
+        return test_runner.run(tests)
 
 
 def get_argument_parser():
@@ -75,7 +75,13 @@ def run(args=None):
 
     parser.parse_args(args=args)
 
-    run_unit_tests()
+    results = run_unit_tests()
+
+    if len(results.errors) > 0 or len(results.failures) > 0:
+        exit(1)
+
+    else:
+        exit(0)
 
 
 if __name__ == "__main__":

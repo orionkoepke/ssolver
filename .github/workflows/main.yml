@@ -29,7 +29,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pwd
         python -m pip install --upgrade pip
         if [ -f etc/requirements.txt ]; then pip install -r etc/requirements.txt; fi
 
